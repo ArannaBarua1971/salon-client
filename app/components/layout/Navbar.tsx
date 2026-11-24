@@ -26,6 +26,11 @@ export function Navbar() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href)
 
+  // Dashboard routes render their own shell (sidebar + topbar)
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
+    return null
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
