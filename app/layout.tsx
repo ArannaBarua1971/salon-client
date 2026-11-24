@@ -1,7 +1,7 @@
 import { Josefin_Sans} from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { Navbar } from "@/app/components/navbar"
+import { Navbar } from "@/app/components/layout/Navbar"
 
 
 const JosefinSans = Josefin_Sans({
