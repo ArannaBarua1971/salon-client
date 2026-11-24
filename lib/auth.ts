@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth"
+import { betterAuth, boolean } from "better-auth"
 import { MongoClient } from "mongodb"
 import { mongodbAdapter } from "@better-auth/mongo-adapter"
 
@@ -9,6 +9,22 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
+  },
+  user:{
+    additionalFields:{
+      role:{
+        type:["customer","admin"],
+        required:false,
+        defaultValue:"customer",
+        input:false
+      },
+      isBlocked:{
+        type:"boolean",
+        required:false,
+        defaultValue:false,
+        input:false,
+      }
+    }
   },
   socialProviders: {
     google: {

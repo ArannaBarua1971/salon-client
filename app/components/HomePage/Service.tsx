@@ -3,7 +3,7 @@ import SalonServiceCard from '../salonService/SalonServiceCard'
 
 
 
-const data=[
+const data = [
   {
     "_id": "service001",
     "serviceName": "Classic Haircut",
@@ -67,15 +67,16 @@ const data=[
 ]
 
 function Service() {
-    return (
-        <div> <div className="service cards px-20">
-            <div className="grid grid-cols-3 gap-10">
-                {data.map((d) => (
-                    <SalonServiceCard key={d._id} service={d} />
-                ))}
-            </div>
-        </div></div>
-    )
+  return (
+    <div> <div className="service cards px-20">
+      <div className="grid grid-cols-3 gap-10">
+        {data.map((d) => (
+          <SalonServiceCard key={d._id} service={d} />
+        ))}
+      </div>
+    </div>
+    </div>
+  )
 }
 
 export default Service

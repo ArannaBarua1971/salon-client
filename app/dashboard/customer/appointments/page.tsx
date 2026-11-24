@@ -1,12 +1,15 @@
-import { CalendarClock, CreditCard, MapPin, Scissors } from "lucide-react"
+import { Scissors } from "lucide-react"
 
 import { CommonButton } from "@/app/components/common/Button"
+import AppointmentActions from "@/app/components/dashboard/AppointmentActions"
+import DashboardPageHeader from "@/app/components/dashboard/DashboardPageHeader"
+import DashboardTable from "@/app/components/dashboard/DashboardTable"
+import FilterChips from "@/app/components/dashboard/FilterChips"
 import { StatusBadge } from "@/app/components/dashboard/StatusBadge"
 import type {
   AppointmentStatus,
   PaymentStatus,
 } from "@/app/components/dashboard/StatusBadge"
-import { cn } from "@/lib/utils"
 
 const filters = [
   { label: "All", count: 5 },
@@ -100,20 +103,13 @@ const appointments: Array<{
 export default function MyAppointmentsPage() {
   return (
     <div className="flex flex-col gap-6">
-      {/* Page header */}
+      {/* Page header + primary action */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-medium tracking-[0.18em] text-rose-gold uppercase">
-            Appointments
-          </p>
-          <h1 className="mt-2 font-heading text-3xl font-semibold text-foreground sm:text-4xl">
-            My Appointments
-          </h1>
-          <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-            Track, pay for or cancel your booking requests.
-          </p>
-        </div>
-
+        <DashboardPageHeader
+          eyebrow="Appointments"
+          title="My Appointments"
+          description="Track, pay for or cancel your booking requests."
+        />
         <CommonButton href="/services" size="lg" variant="outline">
           <Scissors className="size-4" aria-hidden="true" />
           Book new appointment
@@ -121,132 +117,100 @@ export default function MyAppointmentsPage() {
       </div>
 
       {/* Filters (design only — wire up to your state/filter logic) */}
-      <div
-        role="tablist"
-        aria-label="Filter appointments"
-        className="flex flex-wrap gap-2"
-      >
-        {filters.map((filter, index) => (
-          <button
-            key={filter.label}
-            type="button"
-            role="tab"
-            aria-selected={index === 0}
-            className={cn(
-              "flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-              index === 0
-                ? "border-rose-gold/50 bg-rose-gold/12 text-rose-gold"
-                : "border-border/70 bg-card text-muted-foreground hover:border-rose-gold/40 hover:text-foreground"
-            )}
-          >
-            {filter.label}
-            <span className="rounded-full bg-background/70 px-1.5 py-0.5 text-[11px] tabular-nums">
-              {filter.count}
-            </span>
-          </button>
-        ))}
-      </div>
+      <FilterChips chips={filters} ariaLabel="Filter appointments" />
 
-      {/* Appointment list */}
-      <ul className="flex flex-col gap-4">
-        {appointments.map((appointment) => (
-          <li
-            key={appointment.id}
-            className="rounded-3xl border border-border/70 bg-card p-5 transition-colors hover:border-rose-gold/40"
-          >
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              {/* Info */}
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <h2 className="font-heading text-lg font-semibold text-foreground">
-                    {appointment.service}
-                  </h2>
-                  <span className="text-xs text-muted-foreground">
-                    #{appointment.id}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs font-medium tracking-wide text-rose-gold uppercase">
+      {/* Appointments table */}
+      <section
+        aria-label="My appointments"
+        className="overflow-hidden rounded-3xl border border-border/70 bg-card"
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-border/70 px-5 py-4">
+          <div>
+            <h2 className="font-heading text-lg font-semibold text-foreground">
+              All appointments
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Showing {appointments.length} of {appointments.length} bookings
+            </p>
+          </div>
+        </div>
+
+        <DashboardTable
+          tableHeaders={[
+            "Service",
+            "Appointment date",
+            "Stylist",
+            "Price",
+            "Status",
+            "Payment",
+          ]}
+          actionOptions={true}
+        >
+          {appointments.map((appointment) => (
+            <tr
+              key={appointment.id}
+              className="transition-colors hover:bg-rose-gold/5"
+            >
+              {/* Booking id (DashboardTable renders the "#id" column) */}
+              <td className="px-5 py-4 font-medium text-foreground">
+                {appointment.id}
+              </td>
+
+              {/* Service + category */}
+              <td className="px-5 py-4">
+                <p className="font-medium text-foreground">
+                  {appointment.service}
+                </p>
+                <p className="text-[11px] font-medium tracking-wide text-rose-gold uppercase">
                   {appointment.category}
                 </p>
+              </td>
 
-                <dl className="mt-3 grid grid-cols-1 gap-2 text-sm text-muted-foreground sm:grid-cols-2 xl:grid-cols-3">
-                  <div className="flex items-center gap-2">
-                    <CalendarClock
-                      className="size-3.5 shrink-0 text-rose-gold"
-                      aria-hidden="true"
-                    />
-                    <span>
-                      {appointment.date} · {appointment.time}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Scissors
-                      className="size-3.5 shrink-0 text-rose-gold"
-                      aria-hidden="true"
-                    />
-                    <span>
-                      {appointment.stylist} · {appointment.duration}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin
-                      className="size-3.5 shrink-0 text-rose-gold"
-                      aria-hidden="true"
-                    />
-                    <span>{appointment.location}</span>
-                  </div>
-                </dl>
-              </div>
-
-              {/* Status + price */}
-              <div className="flex shrink-0 flex-col items-start gap-2 lg:items-end">
-                <div className="flex flex-wrap items-center gap-2">
-                  <StatusBadge status={appointment.status} />
-                  <StatusBadge status={appointment.payment} kind="payment" />
-                </div>
-                <p className="font-heading text-2xl font-semibold text-foreground">
-                  ${appointment.price}
+              {/* Appointment date + time & location */}
+              <td className="px-5 py-4 whitespace-nowrap">
+                <p className="text-foreground">
+                  {appointment.date} · {appointment.time}
                 </p>
-              </div>
-            </div>
+                <p className="text-xs text-muted-foreground">
+                  {appointment.location}
+                </p>
+              </td>
 
-            {/* Actions */}
-            <div className="mt-4 flex flex-wrap items-center gap-2.5 border-t border-border/60 pt-4">
-              <CommonButton
-                href={`/dashboard/customer/appointments/${appointment.id}`}
-                variant="soft"
-                size="sm"
-              >
-                View details
-              </CommonButton>
+              {/* Stylist + duration */}
+              <td className="px-5 py-4 whitespace-nowrap">
+                <p className="text-foreground">{appointment.stylist}</p>
+                <p className="text-xs text-muted-foreground">
+                  {appointment.duration}
+                </p>
+              </td>
 
-              {appointment.status === "pending" && (
-                <CommonButton
-                  variant="outline"
-                  size="sm"
-                  className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                >
-                  Cancel appointment
-                </CommonButton>
-              )}
+              {/* Price */}
+              <td className="px-5 py-4 font-heading text-base font-semibold whitespace-nowrap text-foreground">
+                ${appointment.price}
+              </td>
 
-              {appointment.status === "confirmed" &&
-                appointment.payment === "unpaid" && (
-                  <CommonButton size="sm">
-                    <CreditCard className="size-3.5" aria-hidden="true" />
-                    Pay Now
-                  </CommonButton>
-                )}
+              {/* Status */}
+              <td className="px-5 py-4">
+                <StatusBadge status={appointment.status} />
+              </td>
 
-              {appointment.status === "cancelled" && (
-                <CommonButton href="/services" variant="ghost" size="sm">
-                  Rebook
-                </CommonButton>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
+              {/* Payment status */}
+              <td className="px-5 py-4">
+                <StatusBadge status={appointment.payment} kind="payment" />
+              </td>
+
+              {/* Actions (Cancel / Pay Now / Rebook) */}
+              <td className="px-5 py-4">
+                <AppointmentActions
+                  id={appointment.id}
+                  status={appointment.status}
+                  payment={appointment.payment}
+                />
+              </td>
+            </tr>
+          ))}
+        </DashboardTable>
+      </section>
     </div>
   )
 }

@@ -79,77 +79,79 @@ export function DashboardLayout({
             <Scissors className="size-4" />
           </span>
           <span className="flex flex-col leading-none">
-            <span className="font-heading text-lg font-semibold text-foreground">
-              SalonBook
-            </span>
-            <span className="mt-1 text-[10px] font-medium tracking-[0.28em] text-muted-foreground uppercase">
-              {role} Panel
-            </span>
+            <Link href={"/"}>
+              <span className="font-heading text-lg font-semibold text-foreground" >
           </span>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            aria-label="Close navigation"
-            className="ml-auto rounded-full p-1.5 text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 lg:hidden"
-          >
-            <X className="size-5" />
-          </button>
-        </div>
-
-        {/* Navigation */}
-        <nav
-          aria-label={`${role} dashboard`}
-          className="flex-1 overflow-y-auto px-3 py-4"
+              SalonBook
+              </Link>
+          <span className="mt-1 text-[10px] font-medium tracking-[0.28em] text-muted-foreground uppercase">
+            {role} Panel
+          </span>
+        </span>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label="Close navigation"
+          className="ml-auto rounded-full p-1.5 text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 lg:hidden"
         >
-          <p className="px-3 pb-2 text-[11px] font-medium tracking-[0.18em] text-muted-foreground uppercase">
-            Menu
-          </p>
-          <ul className="flex flex-col gap-1">
-            {navItems.map((item) => {
-              const active = activeHref === item.href
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "relative flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-                      active
-                        ? "bg-rose-gold/12 text-rose-gold"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    <item.icon className="size-4 shrink-0" aria-hidden="true" />
-                    {item.label}
-                    {active && (
-                      <span
-                        aria-hidden="true"
-                        className="absolute inset-y-2 -left-3 w-1 rounded-full bg-linear-to-b from-rose-gold to-gold"
-                      />
-                    )}
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </nav>
+          <X className="size-5" />
+        </button>
+    </div>
 
-        {/* Sidebar footer */}
-        <div className="border-t border-border/70 p-3">
-          <Link
-            href="/"
-            className="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
-          >
-            <Home className="size-4" aria-hidden="true" />
-            Back to site
-          </Link>
-        </div>
-      </aside>
+        {/* Navigation */ }
+  <nav
+    aria-label={`${role} dashboard`}
+    className="flex-1 overflow-y-auto px-3 py-4"
+  >
+    <p className="px-3 pb-2 text-[11px] font-medium tracking-[0.18em] text-muted-foreground uppercase">
+      Menu
+    </p>
+    <ul className="flex flex-col gap-1">
+      {navItems.map((item) => {
+        const active = activeHref === item.href
+        return (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "relative flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                active
+                  ? "bg-rose-gold/12 text-rose-gold"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <item.icon className="size-4 shrink-0" aria-hidden="true" />
+              {item.label}
+              {active && (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-y-2 -left-3 w-1 rounded-full bg-linear-to-b from-rose-gold to-gold"
+                />
+              )}
+            </Link>
+          </li>
+        )
+      })}
+    </ul>
+  </nav>
 
-      {/* Main column */}
-      <div className="flex min-h-svh flex-col lg:pl-64">
-        {/* Topbar */}
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border/70 bg-background/85 px-4 backdrop-blur-md sm:px-6">
+  {/* Sidebar footer */ }
+  <div className="border-t border-border/70 p-3">
+    <Link
+      href="/"
+      className="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+    >
+      <Home className="size-4" aria-hidden="true" />
+      Back to site
+    </Link>
+  </div>
+      </aside >
+
+    {/* Main column */ }
+    < div className = "flex min-h-svh flex-col lg:pl-64" >
+      {/* Topbar */ }
+      <header className = "sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border/70 bg-background/85 px-4 backdrop-blur-md sm:px-6" >
           <button
             type="button"
             onClick={() => setOpen((value) => !value)}
@@ -173,9 +175,9 @@ export function DashboardLayout({
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
-      </div>
-    </div>
+    <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+      </div >
+    </div >
   )
 }
 

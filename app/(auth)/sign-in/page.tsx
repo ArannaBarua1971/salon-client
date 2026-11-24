@@ -7,7 +7,7 @@ import { CommonButton } from "@/app/components/common/Button"
 import { CommonInput } from "@/app/components/common/Input"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { signIn } from "@/lib/auth-client"
+import { signIn, useSession } from "@/lib/auth-client"
 
 const perks = [
   "Verified stylists and top-rated salons",
@@ -40,13 +40,18 @@ function GoogleIcon() {
 
 export default function SignUpPage() {
   const router = useRouter()
+  const {data}=useSession();
 
   const [error, setError] = useState("")
   const SignInSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if(data?.user.isBlocked && data?.user.role!="admin"){
+      setError("user is blocked")
+      return;
+    }
     e.preventDefault()
     setError("")
     const formData = new FormData(e.currentTarget)
-    const {  email, password } = Object.fromEntries(
+    const { email, password } = Object.fromEntries(
       formData
     )
 
@@ -57,7 +62,7 @@ export default function SignUpPage() {
       })
       if (error) {
         setError(error?.message as string)
-      }else{
+      } else {
         router.push("/")
       }
     } catch (error) {
@@ -65,11 +70,11 @@ export default function SignUpPage() {
     }
   }
 
-    const SignInWithGoogle = async () => {
-      const data = await signIn.social({
-        provider: "google",
-      });
-    }
+  const SignInWithGoogle = async () => {
+    const data = await signIn.social({
+      provider: "google",
+    });
+  }
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-10 px-4 py-10 sm:px-6 lg:min-h-[calc(100svh-4.5rem)] lg:flex-row lg:gap-14 lg:px-8 lg:py-14">
       {/* Brand panel — decorative, hidden on small screens */}

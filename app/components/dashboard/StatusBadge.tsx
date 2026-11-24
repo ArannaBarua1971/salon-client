@@ -4,6 +4,8 @@ export type AppointmentStatus =
   "pending" | "confirmed" | "cancelled" | "completed"
 
 export type PaymentStatus = "unpaid" | "paid" | "partial" | "refunded"
+export type UserStatus = "blocked" | "unblocked"
+export type ServiceStatus = "active" | "inactive"
 
 const appointmentStyles: Record<AppointmentStatus, string> = {
   pending: "bg-amber-500/12 text-amber-600 dark:text-amber-400",
@@ -18,10 +20,18 @@ const paymentStyles: Record<PaymentStatus, string> = {
   partial: "bg-sky-500/12 text-sky-600 dark:text-sky-400",
   refunded: "bg-violet-500/12 text-violet-600 dark:text-violet-400",
 }
+const userStyles: Record<UserStatus, string> = {
+  blocked: "bg-amber-500/12 text-amber-600 dark:text-amber-400",
+  unblocked: "bg-emerald-500/12 text-emerald-600 dark:text-emerald-400",
+}
+const serviceStyles: Record<ServiceStatus, string> = {
+  active: "bg-emerald-500/12 text-emerald-600 dark:text-emerald-400",
+  inactive: "bg-zinc-500/12 text-zinc-500 dark:text-zinc-400",
+}
 
 type StatusBadgeProps = {
-  status: AppointmentStatus | PaymentStatus
-  kind?: "appointment" | "payment"
+  status: AppointmentStatus | PaymentStatus | UserStatus | ServiceStatus
+  kind?: "appointment" | "payment" | "user" | "service"
   className?: string
 }
 
@@ -34,7 +44,11 @@ export function StatusBadge({
   const styles =
     kind === "payment"
       ? paymentStyles[status as PaymentStatus]
-      : appointmentStyles[status as AppointmentStatus]
+      : kind === "appointment"
+        ? appointmentStyles[status as AppointmentStatus]
+        : kind === "user"
+          ? userStyles[status as UserStatus]
+          : serviceStyles[status as ServiceStatus]
 
   return (
     <span
