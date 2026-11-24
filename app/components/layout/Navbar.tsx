@@ -104,13 +104,13 @@ export function Navbar() {
                   Sign up
                 </Link>
               </div>) :
-              (<div className="flex">
-                <div className="flex items-center gap-2.5 rounded-full border border-border/70 bg-card/85 py-1 pr-4 pl-1">
-                  <Avatar name={data.user.name} image={data.user.image} />
+              (<div className="flex space-x-2">
+                <CommonButton variant={"soft"} href={`/dashboard/${data?.user.role}`}>
+                  <Avatar name={data.user.name} image={data.user.image} />{"->"}
                   <span className="hidden max-w-[8rem] truncate text-sm font-medium text-foreground sm:block">
-                    {data.user.name}
+                    Dashboard
                   </span>
-                </div>
+                </CommonButton>
 
                 <CommonButton
                   type="button"
