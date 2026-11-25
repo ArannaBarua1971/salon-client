@@ -28,16 +28,17 @@ interface ConfirmDialogProps {
   token?: string;
   decisionBtnName?:string,
   id:string|undefined,
-  func:(id:string|undefined)=>Promise<{key:string}>
+  func:(id:string|undefined,data?:any)=>Promise<{key:string}>
   onSuccess:()=>Promise<void>,
+  data?:any
 }
-export default function ConfirmDialog({ buttonName, icon, question, description, className,  toastMessage,id, decisionBtnName = "Delete",token,func,onSuccess }: ConfirmDialogProps) {
+export default function ConfirmDialog({ data="",buttonName, icon, question, description, className,  toastMessage,id, decisionBtnName = "Delete",token,func,onSuccess }: ConfirmDialogProps) {
     const router = useRouter()
     const [isSubmitting,setIsSubmitting]=useState(false)
     const deleteStudio = async () => {
         setIsSubmitting(true)
         showToast(`processing:${toastMessage}` ,"i")
-        const res =await func(id)
+        const res =data?await func(id,data) :await func(id)
         if (res) {
             showToast( toastMessage)
             await onSuccess?.()

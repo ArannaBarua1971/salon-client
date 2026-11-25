@@ -1,49 +1,39 @@
-import CommonButton from '@/app/components/common/Button'
+"use client"
 import CommonInput from '@/app/components/common/Input'
+import ConfirmDialog from '@/app/components/dashboard/ConfirmDialog'
 import DashboardPageHeader from '@/app/components/dashboard/DashboardPageHeader'
 import DashboardTable from '@/app/components/dashboard/DashboardTable'
 import FilterChips from '@/app/components/dashboard/FilterChips'
 import StatusBadge from '@/app/components/dashboard/StatusBadge'
+import { getAllUsers, updateUser } from '@/lib/applicatonApi/userApi'
+import { UserTypes } from '@/types/UserTypes'
 import { Search } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
-const userData = [
-  {
-    "_id": "673a1f2b8c4d5e6f7a123001",
-    "name": "John Doe",
-    "email": "john@gmail.com",
-    "isBlocked": false
-  },
-  {
-    "_id": "673a1f2b8c4d5e6f7a123002",
-    "name": "Sarah Smith",
-    "email": "sarah@gmail.com",
-    "isBlocked": true
-  },
-  {
-    "_id": "673a1f2b8c4d5e6f7a123003",
-    "name": "Michael Brown",
-    "email": "michael@gmail.com",
-    "isBlocked": false
-  },
-  {
-    "_id": "673a1f2b8c4d5e6f7a123004",
-    "name": "Emma Wilson",
-    "email": "emma@gmail.com",
-    "isBlocked": false
-  },
-  {
-    "_id": "673a1f2b8c4d5e6f7a123005",
-    "name": "David Miller",
-    "email": "david@gmail.com",
-    "isBlocked": true
-  }
-]
-const filterChips = [
-  { label: "All", count: 8 },
-  { label: "Blocked", count: 4 },
-  { label: "UnBlocked", count: 2 },
-]
+
 function page() {
+  const [activeIndex, setActiveIndex] = useState<number>(0)
+  const [filters, setFilters] = useState([
+    { label: "All", count: 8 },
+    { label: "Blocked", count: 4 },
+    { label: "UnBlocked", count: 2 },
+  ])
+  const [userData, setUserData] = useState([])
+  const [blockUserData, setBlockUserData] = useState([])
+  const [unBlockUserData, setUnBlockUserData] = useState([])
+  const getUser = async () => {
+    const data = await getAllUsers()
+    setUserData(data)
+    setUnBlockUserData(data.filter((d: UserTypes) => !d.isBlocked))
+    setBlockUserData(data.filter((d: UserTypes) => d.isBlocked))
+    filters[0].count = data.length;
+    filters[1].count = data.filter((d: UserTypes) => d.isBlocked).length;
+    filters[2].count = data.filter((d: UserTypes) => !d.isBlocked).length;
+    setFilters(filters)
+  }
+  useEffect(() => {
+    getUser()
+  }, [])
   return (
     <div>
       <DashboardPageHeader eyebrow='admin' title='User Details' description='Every user account can block and unblock' />
@@ -55,7 +45,9 @@ function page() {
           containerClassName="w-full lg:max-w-sm"
         />
         <FilterChips
-          chips={filterChips}
+          activeIndex={activeIndex}
+          chips={filters}
+           onSelect={(e)=> {e==0?setUserData([...blockUserData,...unBlockUserData]):e==1?setUserData(blockUserData):setUserData(unBlockUserData) ; setActiveIndex(e)}}
           ariaLabel="Filter transactions by payment status"
         />
       </div>
@@ -72,16 +64,26 @@ function page() {
               #{row._id}
             </td>
             <td className="px-5 py-4 font-medium text-foreground">
-              #{row.name}
+              {row.name}
             </td>
             <td className="px-5 py-4 font-medium text-foreground">
-              #{row.email}
+              {row.email}
             </td>
             <td>
-              <StatusBadge kind='user' status={row.isBlocked?"blocked":"unblocked"}/>
+              <StatusBadge kind='user' status={row.isBlocked ? "blocked" : "unblocked"} />
             </td>
             <td>
-              <CommonButton variant={"outline"} size={"sm"}>{row.isBlocked?"unblock":"block"}</CommonButton>
+              <ConfirmDialog
+                question={`Are you sure for block id: ${row._id}  `}
+                description='user going to block he can not use this account'
+                func={updateUser}
+                id={row._id}
+                data={{ isBlocked: !row.isBlocked }}
+                onSuccess={getUser}
+                buttonName={row.isBlocked ? "unblock" : "block"}
+                decisionBtnName={row.isBlocked ? "unblock" : "block"}
+                toastMessage='user data updated successfully'
+              />
             </td>
           </tr>
         ))}

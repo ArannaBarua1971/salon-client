@@ -20,7 +20,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={josefinSans.variable}
+      className={josefinSans.className}
     >
       <body>
         <ThemeProvider>
