@@ -1,86 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Image as ImageIcon, Pencil, Plus, Power, Trash2 } from "lucide-react"
 
 import { CommonButton } from "@/app/components/common/Button"
 import DashboardPageHeader from "@/app/components/dashboard/DashboardPageHeader"
 import DashboardTable from "@/app/components/dashboard/DashboardTable"
 import FilterChips from "@/app/components/dashboard/FilterChips"
-import ServiceFormDialog, {
-  type ServiceRow,
-} from "@/app/components/dashboard/ServiceFormDialog"
+import ServiceFormDialog from "@/app/components/dashboard/ServiceFormDialog"
 import { StatusBadge } from "@/app/components/dashboard/StatusBadge"
+import { SalonServiceTypes } from "@/types/SalonServiceTypes"
+import { deleteService, getAllServices, updateService } from "@/lib/applicatonApi/serviceApi"
+import ConfirmDialog from "@/app/components/dashboard/ConfirmDialog"
 
-const filters = [
-  { label: "All", count: 6 },
-  { label: "Active", count: 5 },
-  { label: "Inactive", count: 1 },
-]
 
 // Sample data — replace with your API/DB results
-const initialServices: ServiceRow[] = [
-  {
-    id: "SVC-01",
-    name: "Balayage & Colour",
-    category: "Hair Colour",
-    price: 120,
-    duration: 120,
-    images: 3,
-    active: true,
-    updatedAt: "18 Nov 2026",
-  },
-  {
-    id: "SVC-02",
-    name: "Haircut & Styling",
-    category: "Hair",
-    price: 45,
-    duration: 45,
-    images: 2,
-    active: true,
-    updatedAt: "15 Nov 2026",
-  },
-  {
-    id: "SVC-03",
-    name: "Keratin Smoothing",
-    category: "Hair Treatment",
-    price: 150,
-    duration: 180,
-    images: 3,
-    active: true,
-    updatedAt: "12 Nov 2026",
-  },
-  {
-    id: "SVC-04",
-    name: "Spa Facial & Massage",
-    category: "Spa",
-    price: 80,
-    duration: 60,
-    images: 2,
-    active: true,
-    updatedAt: "10 Nov 2026",
-  },
-  {
-    id: "SVC-05",
-    name: "Manicure & Gel Paint",
-    category: "Nails",
-    price: 35,
-    duration: 40,
-    images: 1,
-    active: true,
-    updatedAt: "08 Nov 2026",
-  },
-  {
-    id: "SVC-06",
-    name: "Bridal Makeup",
-    category: "Makeup",
-    price: 200,
-    duration: 90,
-    images: 0,
-    active: false,
-    updatedAt: "02 Nov 2026",
-  },
-]
+
 
 /** 45 → "45 min", 90 → "1 hr 30 min", 120 → "2 hrs". */
 function formatDuration(minutes: number) {
@@ -91,18 +26,37 @@ function formatDuration(minutes: number) {
   return rest ? `${hours} ${hourLabel} ${rest} min` : `${hours} ${hourLabel}`
 }
 
+
+
 export default function ManageServicesPage() {
-  const [services, setServices] = useState<ServiceRow[]>(initialServices)
+  const [services, setServices] = useState<SalonServiceTypes[]>([])
+  const [activeService, setActiveService] = useState<SalonServiceTypes[]>([])
+  const [inActiveService, setInActiveService] = useState<SalonServiceTypes[]>([])
+  const [activeIndex, setActiveIndex] = useState<number>(0)
+  const [filters,setFilters]=useState([
+  { label: "All", count: 0 },
+  { label: "Active", count: 0 },
+  { label: "Inactive", count: 0 },
+])
   const [dialog, setDialog] = useState<{
     open: boolean
-    service: ServiceRow | null
+    service: SalonServiceTypes | null
   }>({ open: false, service: null })
 
-  // Design only — swap for your API mutation
-  const toggleActive = (id: string) =>
-    setServices((rows) =>
-      rows.map((row) => (row.id === id ? { ...row, active: !row.active } : row))
-    )
+
+  const getServices = async () => {
+    const data = await getAllServices()
+    setServices(data)
+    setActiveService(data.filter((d: SalonServiceTypes) => d.active))
+    setInActiveService(data.filter((d: SalonServiceTypes) => !d.active))
+    filters[0].count = data.length;
+    filters[1].count = data.filter((d: SalonServiceTypes) => d.active).length;
+    filters[2].count = data.filter((d: SalonServiceTypes) => !d.active).length;
+    setFilters(filters)
+  }
+  useEffect(() => {
+    getServices()
+  }, [])
 
   return (
     <div className="flex flex-col gap-6">
@@ -115,7 +69,7 @@ export default function ManageServicesPage() {
         />
         <CommonButton
           size="lg"
-          onClick={() => setDialog({ open: true, service: null })}
+          href="/dashboard/admin/Manage_Services/addService"
         >
           <Plus className="size-4" aria-hidden="true" />
           Add service
@@ -123,7 +77,7 @@ export default function ManageServicesPage() {
       </div>
 
       {/* Filters (design only — wire up to your filter logic) */}
-      <FilterChips chips={filters} ariaLabel="Filter services by status" />
+      <FilterChips activeIndex={activeIndex}  onSelect={(e)=> {e==0?setServices([...activeService,...inActiveService]):e==1?setServices(activeService):setServices(inActiveService) ; setActiveIndex(e)}} chips={filters} ariaLabel="Filter services by status" />
 
       {/* Services table */}
       <section
@@ -146,7 +100,7 @@ export default function ManageServicesPage() {
             "Service",
             "Price",
             "Duration",
-            "Images",
+            "Image",
             "Status",
             "Updated",
           ]}
@@ -154,12 +108,12 @@ export default function ManageServicesPage() {
         >
           {services.map((service) => (
             <tr
-              key={service.id}
+              key={service._id}
               className="transition-colors hover:bg-rose-gold/5"
             >
               {/* Service id (DashboardTable renders the "#id" column) */}
               <td className="px-5 py-4 font-medium text-foreground">
-                {service.id}
+                {service._id}
               </td>
 
               {/* Name + category */}
@@ -173,7 +127,7 @@ export default function ManageServicesPage() {
               {/* Price */}
               <td className="px-5 py-4 whitespace-nowrap">
                 <span className="font-heading text-base font-semibold text-foreground">
-                  ${service.price.toFixed(2)}
+                  ${Number(service.price).toFixed(2)}
                 </span>
                 <span className="ml-1.5 text-[11px] font-medium text-muted-foreground">
                   USD
@@ -182,29 +136,19 @@ export default function ManageServicesPage() {
 
               {/* Duration */}
               <td className="px-5 py-4 whitespace-nowrap text-muted-foreground">
-                {formatDuration(service.duration)}
+                {formatDuration(Number(service.duration))}
               </td>
 
               {/* Uploaded images (ImgBB) */}
               <td className="px-5 py-4">
-                {service.images > 0 ? (
+                {service.image ? (
                   <div className="flex items-center -space-x-2">
-                    {Array.from({ length: Math.min(service.images, 3) }).map(
-                      (_, index) => (
-                        <span
-                          key={index}
-                          aria-hidden="true"
-                          className="flex size-8 items-center justify-center rounded-full border-2 border-card bg-linear-to-br from-rose-gold/30 to-gold/30 text-rose-gold"
-                        >
-                          <ImageIcon className="size-3.5" />
-                        </span>
-                      )
-                    )}
-                    {service.images > 3 && (
-                      <span className="pl-3 text-[11px] text-muted-foreground">
-                        +{service.images - 3}
-                      </span>
-                    )}
+                    <span
+                      aria-hidden="true"
+                      className="flex size-8 items-center justify-center rounded-full border-2 border-card bg-linear-to-br from-rose-gold/30 to-gold/30 text-rose-gold"
+                    >
+                      <ImageIcon className="size-3.5" />
+                    </span>
                   </div>
                 ) : (
                   <span className="text-xs text-muted-foreground">
@@ -232,7 +176,7 @@ export default function ManageServicesPage() {
                   <CommonButton
                     variant="outline"
                     size="sm"
-                    onClick={() => setDialog({ open: true, service })}
+                    onClick={() => {setDialog({ open: true, service });}}
                   >
                     <Pencil className="size-3.5" aria-hidden="true" />
                     Edit
@@ -240,19 +184,21 @@ export default function ManageServicesPage() {
                   <CommonButton
                     variant="soft"
                     size="sm"
-                    onClick={() => toggleActive(service.id)}
+                    onClick={() => { updateService({ active: !service.active }, service._id); getServices() }}
                   >
                     <Power className="size-3.5" aria-hidden="true" />
                     {service.active ? "Deactivate" : "Activate"}
                   </CommonButton>
-                  <CommonButton
-                    variant="outline"
-                    size="sm"
-                    className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <Trash2 className="size-3.5" aria-hidden="true" />
-                    Delete
-                  </CommonButton>
+
+                  <ConfirmDialog
+                    question="Are you sure to delete the service?"
+                    description="Service can be deleted from database"
+                    buttonName="Delete"
+                    toastMessage="Salon service deleted successfully"
+                    func={deleteService}
+                    id={service._id}
+                    onSuccess={getServices}
+                  />
                 </div>
               </td>
             </tr>
@@ -263,9 +209,9 @@ export default function ManageServicesPage() {
       {/* Add / Update dialog */}
       {dialog.open && (
         <ServiceFormDialog
-          key={dialog.service?.id ?? "new"}
+          key={dialog.service?._id ?? "new"}
           service={dialog.service}
-          onClose={() => setDialog({ open: false, service: null })}
+          onClose={() => {setDialog({ open: false, service: null }),getServices()}}
         />
       )}
     </div>

@@ -1,14 +1,14 @@
 /** A single salon service as shown on the services grid / cards. */
 export interface SalonServiceTypes {
   _id?: string
-  serviceName: string
-  category: string
-  description: string
-  price: number
-  duration: number
-  image: string
-  status: boolean
-  createdAt?: string
+  name?: string
+  category?: string
+  price?: string
+  duration?: string
+  description?:string
+  image?: string
+  active?: boolean
+  updatedAt?: string
 }
 
 export type SalonServiceCardProps = {
