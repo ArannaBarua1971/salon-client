@@ -15,6 +15,26 @@ const bookingAppointment = async (data: BookingServiceTypes) => {
 
   return res.json()
 }
+const updateBookingAppointment = async (id:string|undefined,data: any):Promise<{ key: string }> => {
+  const res = await fetch(`${url}/bookingAppointment/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+  return res.json()
+}
+const getBookingAppointments = async (id?:string|undefined) => {
+  const res = await fetch(`${url}/bookingAppointment`)
+  return res.json()
+}
+const getBookingSpecificAppointments = async (id:string|undefined) => {
+  console.log(id)
+  const res = await fetch(`${url}/bookingAppointment/single/${id}`)
+  return res.json()
+}
+
 const getSpecificBookingTimeSlot = async (data:{}) => {
     const query=new URLSearchParams(data)
   const res = await fetch(`${url}/bookingAppointment/timeslot?${query.toString()}`)
@@ -22,4 +42,4 @@ const getSpecificBookingTimeSlot = async (data:{}) => {
   return res.json()
 }
 
-export{bookingAppointment,getSpecificBookingTimeSlot}
+export{bookingAppointment,getSpecificBookingTimeSlot,getBookingAppointments,updateBookingAppointment,getBookingSpecificAppointments}

@@ -2,55 +2,20 @@ import Link from "next/link"
 import {
     ArrowLeft,
     CalendarClock,
-    CreditCard,
-    MapPin,
     MessageSquare,
     Scissors,
-    User,
 } from "lucide-react"
 
-import { CommonButton } from "@/app/components/common/Button"
+import AdminAppointmentActions from "@/app/components/dashboard/AdminAppointmentActions"
 import { StatusBadge } from "@/app/components/dashboard/StatusBadge"
-import type {
-    AppointmentStatus,
-    PaymentStatus,
-} from "@/app/components/dashboard/StatusBadge"
+import { getSpecificService } from "@/lib/applicatonApi/serviceApi"
+import { getBookingSpecificAppointments, updateBookingAppointment } from "@/lib/applicatonApi/BookingApi"
+import { BookingServiceTypes } from "@/types/BookingServiceTypes"
+import { SalonServiceTypes } from "@/types/SalonServiceTypes"
+import { revalidatePath } from "next/cache"
 
-// Sample data — replace with your API/DB results (fetched by `id`)
-const appointment: {
-    service: string
-    category: string
-    stylist: string
-    date: string
-    time: string
-    duration: string
-    location: string
-    price: number
-    taxes: number
-    status: AppointmentStatus
-    payment: PaymentStatus
-    notes: string
-} = {
-    service: "Balayage & Colour",
-    category: "Hair Colour",
-    stylist: "Mia Carter",
-    date: "24 Nov 2026",
-    time: "10:30 AM",
-    duration: "2 hrs",
-    location: "Studio A · Downtown, 48 Rose Avenue",
-    price: 120,
-    taxes: 12,
-    status: "confirmed",
-    payment: "unpaid",
-    notes:
-        "Please keep the tones warm and avoid too much lift on the ends. Sensitive scalp — use ammonia-free products.",
-}
 
-const steps = [
-    { label: "Requested", at: "12 Nov 2026, 4:12 PM", state: "done" },
-    { label: "Confirmed by salon", at: "13 Nov 2026, 9:05 AM", state: "current" },
-    { label: "Completed", at: "Awaiting appointment", state: "todo" },
-]
+
 
 export default async function AppointmentDetailsPage({
     params,
@@ -58,7 +23,8 @@ export default async function AppointmentDetailsPage({
     params: Promise<{ id: string }>
 }) {
     const { id } = await params
-
+    const appointment:BookingServiceTypes=await getBookingSpecificAppointments(id)
+    const service:SalonServiceTypes=await getSpecificService(appointment.serviceId)
     return (
         <div className="flex flex-col gap-6">
             {/* Back link */}
@@ -79,10 +45,10 @@ export default async function AppointmentDetailsPage({
                         </span>
                         <div>
                             <h1 className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">
-                                {appointment.service}
+                                {appointment.serviceName}
                             </h1>
                             <p className="text-sm text-muted-foreground">
-                                Booking #{id} · {appointment.category}
+                                Booking #{id} · {service.category}
                             </p>
                         </div>
                     </div>
@@ -91,11 +57,13 @@ export default async function AppointmentDetailsPage({
                 <div className="flex flex-col items-start gap-3 lg:items-end">
                     <div className="flex flex-wrap items-center gap-2">
                         <StatusBadge status={appointment.status} />
-                        <StatusBadge status={appointment.payment} kind="payment" />
+                        <StatusBadge status={appointment.paymentStatus} kind="payment" />
                     </div>
                     <p className="font-heading text-3xl font-semibold text-foreground">
-                        ${(appointment.price + appointment.taxes).toFixed(2)}
+                        ${(appointment.servicePrice).toFixed(2)}
                     </p>
+
+                    
                 </div>
             </div>
 
@@ -124,25 +92,12 @@ export default async function AppointmentDetailsPage({
                                     Service
                                 </dt>
                                 <dd className="mt-0.5 text-sm font-medium text-foreground">
-                                    {appointment.service}
+                                    {appointment.serviceName}
                                 </dd>
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3">
-                            <User
-                                className="mt-0.5 size-4 shrink-0 text-rose-gold"
-                                aria-hidden="true"
-                            />
-                            <div>
-                                <dt className="text-xs tracking-wide text-muted-foreground uppercase">
-                                    Stylist
-                                </dt>
-                                <dd className="mt-0.5 text-sm font-medium text-foreground">
-                                    {appointment.stylist}
-                                </dd>
-                            </div>
-                        </div>
+
 
                         <div className="flex items-start gap-3">
                             <CalendarClock
@@ -154,7 +109,7 @@ export default async function AppointmentDetailsPage({
                                     Date &amp; time
                                 </dt>
                                 <dd className="mt-0.5 text-sm font-medium text-foreground">
-                                    {appointment.date} · {appointment.time}
+                                    {appointment.appointmentDate} · {appointment.timeSlot}
                                 </dd>
                             </div>
                         </div>
@@ -169,25 +124,11 @@ export default async function AppointmentDetailsPage({
                                     Duration
                                 </dt>
                                 <dd className="mt-0.5 text-sm font-medium text-foreground">
-                                    {appointment.duration}
+                                    {service?.duration}
                                 </dd>
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3 sm:col-span-2">
-                            <MapPin
-                                className="mt-0.5 size-4 shrink-0 text-rose-gold"
-                                aria-hidden="true"
-                            />
-                            <div>
-                                <dt className="text-xs tracking-wide text-muted-foreground uppercase">
-                                    Location
-                                </dt>
-                                <dd className="mt-0.5 text-sm font-medium text-foreground">
-                                    {appointment.location}
-                                </dd>
-                            </div>
-                        </div>
 
                         <div className="flex items-start gap-3 sm:col-span-2">
                             <MessageSquare
@@ -199,7 +140,7 @@ export default async function AppointmentDetailsPage({
                                     Special requests
                                 </dt>
                                 <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                                    {appointment.notes}
+                                    {appointment.message}
                                 </dd>
                             </div>
                         </div>
@@ -218,26 +159,21 @@ export default async function AppointmentDetailsPage({
                         >
                             Payment summary
                         </h2>
-                        <StatusBadge status={appointment.payment} kind="payment" />
+                        <StatusBadge status={appointment.paymentStatus} kind="payment" />
                     </div>
 
                     <dl className="mt-4 flex flex-col gap-2.5 text-sm">
                         <div className="flex items-center justify-between">
                             <dt className="text-muted-foreground">Service fee</dt>
                             <dd className="font-medium text-foreground">
-                                ${appointment.price.toFixed(2)}
+                                ${appointment.servicePrice.toFixed(2)}
                             </dd>
                         </div>
-                        <div className="flex items-center justify-between">
-                            <dt className="text-muted-foreground">Taxes &amp; fees</dt>
-                            <dd className="font-medium text-foreground">
-                                ${appointment.taxes.toFixed(2)}
-                            </dd>
-                        </div>
+
                         <div className="flex items-center justify-between border-t border-border/60 pt-3">
                             <dt className="font-medium text-foreground">Total</dt>
                             <dd className="font-heading text-xl font-semibold text-foreground">
-                                ${(appointment.price + appointment.taxes).toFixed(2)}
+                                ${(appointment.servicePrice ).toFixed(2)}
                             </dd>
                         </div>
                     </dl>

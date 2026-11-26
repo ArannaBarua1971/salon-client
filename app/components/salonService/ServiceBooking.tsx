@@ -72,8 +72,8 @@ export function ServiceBooking({
       serviceName: serviceName,
       servicePrice: Number(price),
       message: message,
-      status: "Pending",
-      paymentStatus: "Unpaid",
+      status: "pending",
+      paymentStatus: "unpaid",
       appointmentDate: selectedDate,
       timeSlot: selectedTime,
       phoneNumber:phoneNumber

@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 
 export type AppointmentStatus =
-  "pending" | "confirmed" | "cancelled" | "completed"
+  "pending" | "confirmed" | "cancelled"
 
 export type PaymentStatus = "unpaid" | "paid" | "partial" | "refunded"
 export type UserStatus = "blocked" | "unblocked"
@@ -11,7 +11,6 @@ const appointmentStyles: Record<AppointmentStatus, string> = {
   pending: "bg-amber-500/12 text-amber-600 dark:text-amber-400",
   confirmed: "bg-emerald-500/12 text-emerald-600 dark:text-emerald-400",
   cancelled: "bg-destructive/12 text-destructive",
-  completed: "bg-sky-500/12 text-sky-600 dark:text-sky-400",
 }
 
 const paymentStyles: Record<PaymentStatus, string> = {

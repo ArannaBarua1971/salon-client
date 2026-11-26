@@ -1,5 +1,5 @@
 "use client"
-import { Trash2Icon } from "lucide-react"
+import { CheckCircle2Icon, Trash2Icon } from "lucide-react"
 
 import {
     AlertDialog,
@@ -18,6 +18,28 @@ import { useRouter } from "next/navigation"
 import CommonButton from "../common/Button"
 import { showToast } from "@/lib/helper/toast"
 
+type ConfirmTone = "danger" | "success"
+type TriggerVariant = "primary" | "outline" | "soft" | "ghost" | "link"
+type TriggerSize = "sm" | "md" | "lg" | "icon"
+
+/** Per-tone styling for the dialog media bubble + the confirming button. */
+const toneStyles: Record<
+    ConfirmTone,
+    { media: string; icon: ReactNode; decisionVariant: "destructive" | "default" }
+> = {
+    danger: {
+        media: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive",
+        icon: <Trash2Icon />,
+        decisionVariant: "destructive",
+    },
+    success: {
+        media:
+            "bg-emerald-500/12 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",
+        icon: <CheckCircle2Icon />,
+        decisionVariant: "default",
+    },
+}
+
 interface ConfirmDialogProps {
   question: string;
   description: string;
@@ -28,12 +50,22 @@ interface ConfirmDialogProps {
   token?: string;
   decisionBtnName?:string,
   id:string|undefined,
+  // `any` is required here so any API/server action payload stays assignable.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   func:(id:string|undefined,data?:any)=>Promise<{key:string}>
-  onSuccess:()=>Promise<void>,
-  data?:any
+  onSuccess?:()=>Promise<void> | void,
+  data?:unknown
+  /** Visual tone — "danger" (default) for destructive actions, "success" for approvals. */
+  tone?: ConfirmTone
+  /** Override the default tone icon inside the dialog bubble. */
+  mediaIcon?: ReactNode
+  /** Variant of the trigger button (default "soft"). */
+  buttonVariant?: TriggerVariant
+  /** Size of the trigger button (default "md"). */
+  buttonSize?: TriggerSize
 }
-export default function ConfirmDialog({ data="",buttonName, icon, question, description, className,  toastMessage,id, decisionBtnName = "Delete",token,func,onSuccess }: ConfirmDialogProps) {
-    const router = useRouter()
+export default function ConfirmDialog({ data="",buttonName, icon, question, description, className,  toastMessage,id, decisionBtnName = "Delete",token,func,onSuccess, tone = "danger", mediaIcon, buttonVariant = "soft", buttonSize = "md" }: ConfirmDialogProps) {
+    const toneStyle = toneStyles[tone]
     const [isSubmitting,setIsSubmitting]=useState(false)
     const deleteStudio = async () => {
         setIsSubmitting(true)
@@ -48,12 +80,12 @@ export default function ConfirmDialog({ data="",buttonName, icon, question, desc
     return (
         <AlertDialog>
             <AlertDialogTrigger
-                render={<CommonButton variant="soft" className={className}>{icon}{buttonName}</CommonButton>}
+                render={<CommonButton variant={buttonVariant} size={buttonSize} className={className}>{icon}{buttonName}</CommonButton>}
             />
             <AlertDialogContent size="sm">
                 <AlertDialogHeader>
-                    <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-                        <Trash2Icon />
+                    <AlertDialogMedia className={toneStyle.media}>
+                        {mediaIcon ?? toneStyle.icon}
                     </AlertDialogMedia>
                     <AlertDialogTitle>{question}?</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -62,7 +94,7 @@ export default function ConfirmDialog({ data="",buttonName, icon, question, desc
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-                    <AlertDialogCancel variant="destructive" onClick={deleteStudio} >
+                    <AlertDialogCancel variant={toneStyle.decisionVariant} onClick={deleteStudio} >
                         {isSubmitting? "checking....": decisionBtnName}</AlertDialogCancel>
                 </AlertDialogFooter>
             </AlertDialogContent>
