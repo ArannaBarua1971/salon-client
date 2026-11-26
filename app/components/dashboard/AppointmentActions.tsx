@@ -1,4 +1,4 @@
-import { CreditCard } from "lucide-react"
+import { CreditCard, XCircle } from "lucide-react"
 
 import { CommonButton } from "@/app/components/common/Button"
 import type {
@@ -6,10 +6,12 @@ import type {
   PaymentStatus,
 } from "@/app/components/dashboard/StatusBadge"
 import { cn } from "@/lib/utils"
+import ConfirmDialog from "./ConfirmDialog"
+import { AppointmentAction } from "./AdminAppointmentActions"
 
 type AppointmentActionsProps = {
   /** Booking id — used to build the default details link. */
-  id: string
+  id: string | undefined
   status: AppointmentStatus
   payment: PaymentStatus
   /** Override the details link (e.g. point an admin table at /dashboard/admin/…). */
@@ -18,6 +20,9 @@ type AppointmentActionsProps = {
   showDetails?: boolean
   /** Extra classes for the wrapper. */
   className?: string
+  onCancel: AppointmentAction
+  onSuccess?: () => Promise<void> | void
+  data: any
 }
 
 /**
@@ -33,6 +38,9 @@ export function AppointmentActions({
   detailsHref = `/dashboard/customer/appointments/${id}`,
   showDetails = true,
   className,
+  onCancel,
+  onSuccess,
+  data
 }: AppointmentActionsProps) {
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
@@ -43,20 +51,37 @@ export function AppointmentActions({
       )}
 
       {status === "pending" && (
-        <CommonButton
-          variant="outline"
-          size="sm"
-          className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
-        >
-          Cancel
-        </CommonButton>
+        <ConfirmDialog
+          tone="danger"
+          buttonVariant="outline"
+          buttonSize="sm"
+          className="border-destructive/40 text-destructive hover:border-destructive/60 hover:bg-destructive/10 hover:text-destructive"
+          mediaIcon={<XCircle className="size-6" aria-hidden="true" />}
+          question={`Cancel appointment #${id}`}
+          description="This can't be undone — the customer will be notified that their booking was cancelled."
+          buttonName="Cancel"
+          decisionBtnName="Cancel appointment"
+          toastMessage="Appointment cancelled"
+          id={id}
+          data={onCancel.data}
+          func={onCancel.action}
+          onSuccess={onSuccess}
+        />
       )}
 
       {status === "confirmed" && payment === "unpaid" && (
-        <CommonButton size="sm">
-          <CreditCard className="size-3.5" aria-hidden="true" />
-          Pay Now
-        </CommonButton>
+
+        <form action="/api/checkout_sessions" method="POST">
+          <input type="number" name="price" defaultValue={data.price} hidden />
+          <input type="text" name="serviceId" defaultValue={data.serviceId} hidden />
+          <input type="text" name="appointmentId" defaultValue={data.appointmentId} hidden />
+          <section>
+            <CommonButton size="sm" type="submit" role="link">
+              <CreditCard className="size-3.5" aria-hidden="true" />
+              Pay Now
+            </CommonButton>
+          </section>
+        </form>
       )}
 
       {status === "cancelled" && (

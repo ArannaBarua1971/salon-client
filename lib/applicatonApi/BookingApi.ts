@@ -3,7 +3,6 @@
 import { BookingServiceTypes } from "@/types/BookingServiceTypes"
 const url = process.env.NEXT_PUBLIC_LOCAL_DB_URL
 
-
 const bookingAppointment = async (data: BookingServiceTypes) => {
   const res = await fetch(`${url}/bookingAppointment`, {
     method: "POST",
@@ -15,7 +14,10 @@ const bookingAppointment = async (data: BookingServiceTypes) => {
 
   return res.json()
 }
-const updateBookingAppointment = async (id:string|undefined,data: any):Promise<{ key: string }> => {
+const updateBookingAppointment = async (
+  id: string | undefined,
+  data: any
+): Promise<{ key: string }> => {
   const res = await fetch(`${url}/bookingAppointment/${id}`, {
     method: "PATCH",
     headers: {
@@ -25,21 +27,47 @@ const updateBookingAppointment = async (id:string|undefined,data: any):Promise<{
   })
   return res.json()
 }
-const getBookingAppointments = async (id?:string|undefined) => {
-  const res = await fetch(`${url}/bookingAppointment`)
+
+const getBookingAppointments = async (id?: string | undefined) => {
+  const query = new URLSearchParams(id)
+  if (id) {
+    query.append("id", id)
+  }
+  const res = await fetch(`${url}/bookingAppointment?${query.toString()}`)
   return res.json()
 }
-const getBookingSpecificAppointments = async (id:string|undefined) => {
+const getBookingSpecificAppointments = async (id: string | undefined) => {
   console.log(id)
   const res = await fetch(`${url}/bookingAppointment/single/${id}`)
   return res.json()
 }
 
-const getSpecificBookingTimeSlot = async (data:{}) => {
-    const query=new URLSearchParams(data)
-  const res = await fetch(`${url}/bookingAppointment/timeslot?${query.toString()}`)
+const getSpecificBookingTimeSlot = async (data: {}) => {
+  const query = new URLSearchParams(data)
+  const res = await fetch(
+    `${url}/bookingAppointment/timeslot?${query.toString()}`
+  )
 
   return res.json()
 }
 
-export{bookingAppointment,getSpecificBookingTimeSlot,getBookingAppointments,updateBookingAppointment,getBookingSpecificAppointments}
+const chekcout = async (data: any) => {
+  const res = await fetch(`${url}/payments/checkout-verify`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+
+  return res.json()
+}
+
+export {
+  bookingAppointment,
+  getSpecificBookingTimeSlot,
+  getBookingAppointments,
+  updateBookingAppointment,
+  getBookingSpecificAppointments,
+  chekcout
+}

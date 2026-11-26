@@ -88,7 +88,7 @@ export function ServiceBooking({
   
   useEffect(()=>{
     getTimeSlot()
-  },[])
+  },[selectedDate])
 
   return (
     <section
