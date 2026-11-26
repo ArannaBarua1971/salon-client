@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react"
+import { usePathname } from "next/navigation"
 
 const exploreLinks = [
   { href: "/", label: "Home" },
@@ -38,8 +39,11 @@ const contactDetails = [
  * and the rose-gold / gold theme used across the marketing pages.
  */
 export function Footer() {
+  const pathname = usePathname()
   const year = new Date().getFullYear()
-
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
+    return null
+  }
   return (
     <footer className="relative isolate overflow-hidden border-t border-border/70 bg-background">
       {/* Decorative glows + top hairline */}
