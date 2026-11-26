@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Navbar } from "@/app/components/layout/Navbar"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import Footer from "./components/layout/Footer"
 
 const josefinSans = Josefin_Sans({
   subsets: ["latin"],
@@ -22,6 +23,8 @@ export default function RootLayout({
         <ThemeProvider>
           <Navbar />
           {children}
+          {/* Site footer */}
+          <Footer />
         </ThemeProvider>
         <ToastContainer />
       </body>

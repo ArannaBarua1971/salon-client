@@ -135,8 +135,7 @@ export default function Page() {
         </section>
       </div>
 
-      {/* Site footer */}
-      <Footer />
+      
     </main>
   )
 }
