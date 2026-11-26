@@ -16,7 +16,7 @@ const NavItems = {
       label: "My Appointments",
       icon: CalendarCheck,
     },
-    { href: "/dashboard/customer/profile", label: "My Profile", icon: User },
+    { href: "/dashboard/profile", label: "My Profile", icon: User },
   ],
   admin: [
     { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
@@ -28,6 +28,7 @@ const NavItems = {
     { href: "/dashboard/admin/appointments", label: "Manage Appointments", icon: User },
     { href: "/dashboard/admin/ManageUsers", label: "Manage Users", icon: User2Icon },
     { href: "/dashboard/admin/Transactions", label: "Transactions", icon: ShoppingCart },
+    { href: "/dashboard/profile", label: "My Profile", icon: User },
   ]
 }
 

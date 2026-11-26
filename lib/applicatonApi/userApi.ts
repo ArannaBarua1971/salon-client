@@ -8,7 +8,7 @@ const getAllUsers = async () => {
   const res = await fetch(`${url}/users`)
   return res.json()
 }
-const updateUser = async ( id: string | undefined,data: UserTypes) => {
+const updateUser = async ( id: string | undefined,data: {}) => {
   const res = await fetch(`${url}/users/${id}`, {
     method: "PATCH",
     headers: {
