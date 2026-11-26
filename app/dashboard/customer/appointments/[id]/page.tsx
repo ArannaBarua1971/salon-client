@@ -338,14 +338,7 @@ export default async function AppointmentDetailsPage({
                   </>
                 )}
 
-              {(appointment.status === "completed" ||
-                appointment.status === "cancelled") && (
-                <p className="rounded-2xl bg-muted/70 px-4 py-3 text-sm text-muted-foreground">
-                  {appointment.status === "completed"
-                    ? "This appointment is completed. Thank you for visiting!"
-                    : "This appointment was cancelled."}
-                </p>
-              )}
+            
 
               <CommonButton href="/services" variant="soft" fullWidth>
                 <Scissors className="size-4" aria-hidden="true" />

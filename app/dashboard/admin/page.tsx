@@ -69,14 +69,6 @@ const recentAppointments: Array<{
     payment: "unpaid",
   },
   {
-    id: "BK-2030",
-    service: "Spa Facial & Massage",
-    datetime: "18 Nov 2026, 11:00 AM",
-    stylist: "Ivy Nguyen",
-    status: "completed",
-    payment: "paid",
-  },
-  {
     id: "BK-2022",
     service: "Keratin Smoothing",
     datetime: "12 Nov 2026, 9:15 AM",
