@@ -1,10 +1,10 @@
-
 import { Josefin_Sans } from "next/font/google"
 import "./globals.css"
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { Navbar } from "@/app/components/layout/Navbar"
 import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 const josefinSans = Josefin_Sans({
   subsets: ["latin"],
@@ -17,11 +17,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={josefinSans.className}
-    >
+    <html lang="en" suppressHydrationWarning className={josefinSans.className}>
       <body>
         <ThemeProvider>
           <Navbar />

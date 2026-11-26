@@ -12,7 +12,7 @@ export function SalonServiceCard({
   const {
     _id,
     image,
-    serviceName,
+    name,
     category,
     price,
     duration,
@@ -33,7 +33,7 @@ export function SalonServiceCard({
         {image ? (
           <img
             src={image}
-            alt={serviceName}
+            alt={name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -57,7 +57,7 @@ export function SalonServiceCard({
       {/* Card body */}
       <div className="flex flex-1 flex-col p-5">
         <h3 className="font-heading text-lg font-semibold text-foreground">
-          {serviceName}
+          {name}
         </h3>
 
         <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">

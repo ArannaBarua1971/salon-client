@@ -38,11 +38,20 @@ const deleteService = async (id:string|undefined):Promise<{key:string}> => {
 }
 
 
-const getAllServices = async () => {
-  const res = await fetch(`${url}/services`,{cache:"no-store"})
+const getAllServices = async (data?:{}) => {
+  const query=new URLSearchParams(data)
+  const res = await fetch(`${url}/services?${query.toString()}`,{cache:"no-store"})
   if(res.ok){
     return res.json()
   }
 }
 
-export { PostService, updateService,getAllServices,deleteService }
+const getSpecificService= async (id:string|undefined) => {
+  const res = await fetch(`${url}/services/${id}`,{cache:"no-store"})
+  if(res.ok){
+    return res.json()
+  }
+}
+
+
+export { PostService, updateService,getAllServices,deleteService ,getSpecificService}

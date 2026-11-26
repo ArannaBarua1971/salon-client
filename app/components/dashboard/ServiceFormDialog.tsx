@@ -11,6 +11,7 @@ import {
 
 import { CommonButton } from "@/app/components/common/Button"
 import { CommonInput } from "@/app/components/common/Input"
+import { CommonTextarea } from "@/app/components/common/Textarea"
 import { cn } from "@/lib/utils"
 import { SalonServiceTypes } from "@/types/SalonServiceTypes"
 import { serviceCategories } from "@/lib/helper/category"
@@ -18,8 +19,6 @@ import { PostService, updateService } from "@/lib/applicatonApi/serviceApi"
 
 import { useRouter } from "next/navigation"
 import { showToast } from "@/lib/helper/toast"
-
-
 
 type ServiceFormDialogProps = {
   /** Existing service — omit (or null) to design the Add flow. */
@@ -39,23 +38,24 @@ export function ServiceFormDialog({
   const [duration, setDuration] = useState(
     service ? String(service.duration) : ""
   )
-  const [description, setDescription] = useState(service ? String(service.description) : "")
+  const [description, setDescription] = useState(
+    service ? String(service.description) : ""
+  )
   const [active, setActive] = useState(service?.active ?? true)
   const updatedAt = new Date().toISOString().split("T")[0]
-
-
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Overlay */}
-      {
-        onClose ?
-          <div
-            aria-hidden="true"
-            onClick={onClose}
-            className="absolute inset-0 bg-black/55 backdrop-blur-sm"
-          /> : <></>
-      }
+      {onClose ? (
+        <div
+          aria-hidden="true"
+          onClick={onClose}
+          className="absolute inset-0 bg-black/55 backdrop-blur-sm"
+        />
+      ) : (
+        <></>
+      )}
 
       {/* Dialog */}
       <div
@@ -77,16 +77,18 @@ export function ServiceFormDialog({
               Set the details customers see when booking.
             </p>
           </div>
-          {
-            onClose ?
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close dialog"
-                className="rounded-full p-2 text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                <X className="size-5" />
-              </button> : <></>}
+          {onClose ? (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close dialog"
+              className="rounded-full p-2 text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <X className="size-5" />
+            </button>
+          ) : (
+            <></>
+          )}
         </div>
 
         {/* Form */}
@@ -94,23 +96,46 @@ export function ServiceFormDialog({
           className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2"
           onSubmit={async (event) => {
             event.preventDefault()
-            if (!service) {
-              const res = await PostService({ name, category, price, duration, description, image, active, updatedAt })
-              if (res) {
-                showToast("Salon service is uploaded successfully.")
+            try {
+              if (!service) {
+                const res = await PostService({
+                  name,
+                  category,
+                  price,
+                  duration,
+                  description,
+                  image,
+                  active,
+                  updatedAt,
+                })
+                if (res) {
+                  showToast("Salon service is uploaded successfully.")
+                } else {
+                  showToast("Something is wrong,try again!", "w")
+                }
               } else {
-                showToast("Something is wrong,try again!", "w")
+                const res = await updateService(
+                  {
+                    name,
+                    category,
+                    price,
+                    duration,
+                    description,
+                    image,
+                    active,
+                    updatedAt,
+                  },
+                  service._id
+                )
+                if (res) {
+                  showToast("Salon service is updated successfully.")
+                } else {
+                  showToast("Something is wrong,try again!", "w")
+                }
               }
+            } catch {
+              showToast("Something is wrong,try again!", "w")
             }
-            else {
-              const res=await updateService({ name, category, price, duration, description, image, active, updatedAt }, service._id)
-              if (res) {
-                showToast("Salon service is updated successfully.")
-              } else {
-                showToast("Something is wrong,try again!", "w")
-              }
-            }
-
           }}
         >
           <CommonInput
@@ -174,22 +199,15 @@ export function ServiceFormDialog({
           />
 
           {/* Description */}
-          <div className="flex flex-col gap-1.5 sm:col-span-2">
-            <label
-              htmlFor="service-description"
-              className="text-sm font-medium text-foreground"
-            >
-              Description
-            </label>
-            <textarea
-              id="service-description"
-              rows={3}
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="What's included in this service…"
-              className="w-full rounded-3xl border border-input bg-background/70 px-4 py-3 text-sm text-foreground transition-colors outline-none placeholder:text-muted-foreground focus:border-rose-gold/60 focus:ring-3 focus:ring-ring/50"
-            />
-          </div>
+          <CommonTextarea
+            label="Description"
+            name="description"
+            rows={3}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            placeholder="What's included in this service…"
+            containerClassName="sm:col-span-2"
+          />
 
           {/* Image upload — ImgBB */}
           <div className="flex flex-col gap-1.5 sm:col-span-2">
@@ -238,7 +256,15 @@ export function ServiceFormDialog({
 
           {/* Footer */}
           <div className="flex flex-col gap-2.5 border-t border-border/60 pt-4 sm:col-span-2 sm:flex-row sm:justify-end">
-            <CommonButton variant="outline" size="lg" onClick={onClose ? onClose : () => router.push("/dashboard/admin/Manage_Services")}>
+            <CommonButton
+              variant="outline"
+              size="lg"
+              onClick={
+                onClose
+                  ? onClose
+                  : () => router.push("/dashboard/admin/Manage_Services")
+              }
+            >
               Cancel
             </CommonButton>
             {/* Wire to your add/update mutation (ImgBB upload happens first) */}
