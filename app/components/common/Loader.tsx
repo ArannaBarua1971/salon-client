@@ -1,21 +1,16 @@
-import { Scissors } from "lucide-react"
-
 import { cn } from "@/lib/utils"
 
 /**
- * Salon themed loaders — rose-gold → gold gradient ring or bouncing dots.
+ * Salon themed loader — a single rose-gold → gold gradient ring, centered.
  *
- * - <CommonLoader />  inline indicator (buttons, cards, tables)
- * - <PageLoader />    full-screen overlay for route/data loading
+ * - <CommonLoader />  centered inline spinner (buttons, cards, tables)
+ * - <PageLoader />    same spinner, centered on a full-screen overlay
  */
-export type LoaderVariant = "spinner" | "dots"
 
 type CommonLoaderProps = {
-  /** Visual style — gradient ring or bouncing dots. */
-  variant?: LoaderVariant
   /** `sm` fits inside buttons, `md` is the default, `lg` for empty states. */
   size?: "sm" | "md" | "lg"
-  /** Caption rendered next to (spinner) or under (dots) the loader. */
+  /** Optional caption rendered under the spinner. */
   label?: string
   /** Extra classes for the outer wrapper. */
   className?: string
@@ -34,12 +29,6 @@ const spinnerSize = {
   lg: "size-14",
 } as const
 
-const dotSize = {
-  sm: "size-1.5",
-  md: "size-2.5",
-  lg: "size-3.5",
-} as const
-
 const labelSize = {
   sm: "text-xs",
   md: "text-sm",
@@ -47,51 +36,33 @@ const labelSize = {
 } as const
 
 export function CommonLoader({
-  variant = "spinner",
   size = "md",
   label,
   className,
 }: CommonLoaderProps) {
-  const isSpinner = variant === "spinner"
-
   return (
     <span
       role="status"
       className={cn(
-        "mx-auto gap-2.5 text-muted-foreground",
-        !isSpinner && "flex-col gap-2",
+        "flex w-full flex-col items-center justify-center gap-2.5 text-muted-foreground",
         className
       )}
     >
       {/* Screen reader announcement */}
-      <span className="sr-only">Loading…</span>
+      <span className="sr-only">{label ?? "Loading"}…</span>
 
-      {isSpinner ? (
-        <span
-          aria-hidden="true"
-          className={cn(
-            "block shrink-0 animate-spin rounded-full bg-linear-to-r from-rose-gold via-gold to-rose-gold",
-            spinnerSize[size],
-            spinnerMask[size]
-          )}
-        />
-      ) : (
-        <span aria-hidden="true" className="flex items-center gap-1.5">
-          {[0, 1, 2].map((index) => (
-            <span
-              key={index}
-              style={{ animationDelay: `${index * 150}ms` }}
-              className={cn(
-                "block animate-bounce rounded-full bg-linear-to-br from-rose-gold to-gold",
-                dotSize[size]
-              )}
-            />
-          ))}
-        </span>
-      )}
+      <span
+        aria-hidden="true"
+        className={cn(
+          "block shrink-0 animate-spin rounded-full bg-linear-to-r from-rose-gold via-gold to-rose-gold",
+          spinnerSize[size],
+          spinnerMask[size]
+        )}
+      />
 
       {label && (
         <span
+          aria-hidden="true"
           className={cn(
             "font-medium tracking-[0.14em] uppercase",
             labelSize[size]
@@ -105,49 +76,23 @@ export function CommonLoader({
 }
 
 type PageLoaderProps = {
-  /** Caption under the brand mark. */
+  /** Optional caption under the spinner. */
   label?: string
   /** Extra classes for the overlay. */
   className?: string
 }
 
-/** Full-screen loading overlay — brand mark inside a spinning gradient ring. */
-export function PageLoader({ label = "Loading", className }: PageLoaderProps) {
+/** Full-screen overlay with the same spinner, dead center. */
+export function PageLoader({ label, className }: PageLoaderProps) {
   return (
     <div
-      role="status"
       aria-live="polite"
       className={cn(
-        "fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-background/85 backdrop-blur-sm",
+        "fixed inset-0 z-50 flex items-center justify-center bg-background/85 backdrop-blur-sm",
         className
       )}
     >
-      <span className="sr-only">{label}…</span>
-
-      <span
-        aria-hidden="true"
-        className="relative flex size-20 items-center justify-center"
-      >
-        {/* Spinning rose-gold → gold ring */}
-        <span className="absolute inset-0 animate-spin rounded-full bg-linear-to-r from-rose-gold via-gold to-rose-gold [mask-image:radial-gradient(farthest-side,transparent_calc(100%-4px),#000_calc(100%-4px))]" />
-        {/* Static centre with the salon mark */}
-        <span className="flex size-14 items-center justify-center rounded-full border border-rose-gold/30 bg-card shadow-[0_12px_30px_-16px_var(--rose-gold)]">
-          <Scissors className="size-6 text-rose-gold" />
-        </span>
-      </span>
-
-      <p className="flex items-center gap-2.5 font-heading text-sm font-medium tracking-[0.3em] text-muted-foreground uppercase">
-        {label}
-        <span aria-hidden="true" className="flex items-center gap-1">
-          {[0, 1, 2].map((index) => (
-            <span
-              key={index}
-              style={{ animationDelay: `${index * 150}ms` }}
-              className="block size-1.5 animate-bounce rounded-full bg-linear-to-br from-rose-gold to-gold"
-            />
-          ))}
-        </span>
-      </p>
+      <CommonLoader size="lg" label={label} />
     </div>
   )
 }

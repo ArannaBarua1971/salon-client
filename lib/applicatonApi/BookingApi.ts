@@ -1,6 +1,7 @@
 "use server"
 
 import { BookingServiceTypes } from "@/types/BookingServiceTypes"
+import { notFound } from "next/navigation"
 const url = process.env.NEXT_PUBLIC_LOCAL_DB_URL
 
 const bookingAppointment = async (data: BookingServiceTypes) => {
@@ -34,12 +35,20 @@ const getBookingAppointments = async (id?: string | undefined) => {
     query.append("id", id)
   }
   const res = await fetch(`${url}/bookingAppointment?${query.toString()}`)
-  return res.json()
+  if (res.ok) {
+    return res.json()
+  } else {
+    notFound()
+  }
 }
+
 const getBookingSpecificAppointments = async (id: string | undefined) => {
-  console.log(id)
   const res = await fetch(`${url}/bookingAppointment/single/${id}`)
-  return res.json()
+  if (res.ok) {
+    return res.json()
+  } else {
+    notFound()
+  }
 }
 
 const getSpecificBookingTimeSlot = async (data: {}) => {
@@ -48,7 +57,11 @@ const getSpecificBookingTimeSlot = async (data: {}) => {
     `${url}/bookingAppointment/timeslot?${query.toString()}`
   )
 
-  return res.json()
+  if (res.ok) {
+    return res.json()
+  } else {
+    notFound()
+  }
 }
 
 const chekcout = async (data: any) => {
@@ -69,5 +82,5 @@ export {
   getBookingAppointments,
   updateBookingAppointment,
   getBookingSpecificAppointments,
-  chekcout
+  chekcout,
 }

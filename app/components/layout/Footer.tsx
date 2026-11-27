@@ -14,8 +14,6 @@ import { usePathname } from "next/navigation"
 const exploreLinks = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Browse services" },
-  { href: "/sign-in", label: "Sign in" },
-  { href: "/sign-up", label: "Create account" },
 ]
 
 const serviceLinks = [
@@ -46,7 +44,7 @@ export function Footer() {
     return null
   }
   return (
-    <footer className="relative isolate overflow-hidden border-t border-border/70 bg-background">
+    <footer className="relative isolate overflow-hidden border-t border-border/70 bg-background mt-10">
       {/* Decorative glows + top hairline */}
       <div
         aria-hidden="true"

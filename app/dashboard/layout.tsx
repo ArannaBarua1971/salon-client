@@ -5,7 +5,7 @@ import { LayoutDashboard, CalendarCheck, User ,ShoppingCart,User2Icon} from "luc
 
 import { DashboardLayout } from "@/app/components/dashboard/DashboardLayout"
 import { useSession } from "@/lib/auth-client"
-import CommonLoader from "../components/common/Loader"
+import CommonLoader, { PageLoader } from "../components/common/Loader"
 
 
 const NavItems = {
@@ -44,7 +44,7 @@ export default function DashboardLayoutRoute({
   const role: Role = (data?.user?.role as Role) ?? "customer"
 
   if(isPending){
-    return <CommonLoader/>
+    return <PageLoader/>
   }
   const Nav=NavItems[role]
 

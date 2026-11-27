@@ -1,84 +1,89 @@
+"use client"
 import Link from "next/link"
 import { BadgeCheck, Clock, Inbox, ArrowRight, XCircle } from "lucide-react"
-
+import DashboardTable from "@/app/components/dashboard/DashboardTable"
 import { CommonButton } from "@/app/components/common/Button"
 import { StatusBadge } from "@/app/components/dashboard/StatusBadge"
-import type {
-  AppointmentStatus,
-  PaymentStatus,
-} from "@/app/components/dashboard/StatusBadge"
 
-const stats = [
-  {
-    label: "Total appointment requests",
-    value: "42",
-    note: "+6 this month",
-    icon: Inbox,
-  },
-  {
-    label: "Pending appointments",
-    value: "6",
-    note: "Awaiting confirm",
-    icon: Clock,
-  },
-  {
-    label: "Confirmed appointments",
-    value: "12",
-    note: "Next: 24 Nov",
-    icon: BadgeCheck,
-  },
-  {
-    label: "Cancelled appointments",
-    value: "5",
-    note: "Last 30 days",
-    icon: XCircle,
-  },
-]
+import { useSession } from "@/lib/auth-client"
+import { useEffect, useState } from "react"
+import { BookingServiceTypes } from "@/types/BookingServiceTypes"
+import { getBookingAppointments, updateBookingAppointment } from "@/lib/applicatonApi/BookingApi"
+import CommonLoader from "@/app/components/common/Loader"
+import AppointmentActions from "@/app/components/dashboard/AppointmentActions"
 
-// Sample data — replace with your API/DB results
-const recentAppointments: Array<{
-  id: string
-  service: string
-  datetime: string
-  stylist: string
-  status: AppointmentStatus
-  payment: PaymentStatus
-}> = [
-  {
-    id: "BK-2041",
-    service: "Balayage & Colour",
-    datetime: "24 Nov 2026, 10:30 AM",
-    stylist: "Mia Carter",
-    status: "confirmed",
-    payment: "unpaid",
-  },
-  {
-    id: "BK-2038",
-    service: "Haircut & Styling",
-    datetime: "21 Nov 2026, 2:00 PM",
-    stylist: "Leo Grant",
-    status: "pending",
-    payment: "unpaid",
-  },
-  {
-    id: "BK-2033",
-    service: "Keratin Smoothing",
-    datetime: "19 Nov 2026, 9:15 AM",
-    stylist: "Mia Carter",
-    status: "pending",
-    payment: "unpaid",
-  },
-  {
-    id: "BK-2022",
-    service: "Keratin Smoothing",
-    datetime: "12 Nov 2026, 9:15 AM",
-    stylist: "Mia Carter",
-    status: "cancelled",
-    payment: "refunded",
-  },
-]
+
+
 
 export default function CustomerDashboardPage() {
+  const { data, isPending } = useSession()
+  const [appointments, setAppointments] = useState<BookingServiceTypes[]>([])
+  const [stats, setStates] = useState([
+      {
+        label: "Total appointment requests",
+        value: 0,
+        note: "life time",
+        icon: Inbox,
+      },
+      {
+        label: "Pending appointments",
+        value: 0,
+        note: "Awaiting confirm",
+        icon: Clock,
+      },
+      {
+        label: "Confirmed appointments",
+        value: 0,
+        note: "life time",
+        icon: BadgeCheck,
+      },
+      {
+        label: "Cancelled appointments",
+        value: 0,
+        note: "life time",
+        icon: XCircle,
+      },
+    ])
+
+  const getData = async () => {
+    const d = await getBookingAppointments(data?.user.id)
+    const show=d.slice(0,6)
+    setStates([
+      {
+        label: "Total appointment requests",
+        value: d.length,
+        note: "life time",
+        icon: Inbox,
+      },
+      {
+        label: "Pending appointments",
+        value: d.filter((i:BookingServiceTypes)=> i.status==="pending").length,
+        note: "Awaiting confirm",
+        icon: Clock,
+      },
+      {
+        label: "Confirmed appointments",
+        value: d.filter((i:BookingServiceTypes)=> i.status==="confirmed").length,
+        note: "life time",
+        icon: BadgeCheck,
+      },
+      {
+        label: "Cancelled appointments",
+        value: d.filter((i:BookingServiceTypes)=> i.status==="cancelled").length,
+        note: "life time",
+        icon: XCircle,
+      },
+    ])
+    setAppointments(show)
+  }
+  useEffect(() => {
+    getData()
+  }, [])
+
+  if (isPending) {
+    return <CommonLoader />
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Page header */}
@@ -88,7 +93,7 @@ export default function CustomerDashboardPage() {
             Dashboard
           </p>
           <h1 className="mt-2 font-heading text-3xl font-semibold text-foreground sm:text-4xl">
-            Welcome back, Alex
+            Welcome back, {data?.user.name}
           </h1>
           <p className="mt-2 max-w-xl text-sm text-muted-foreground">
             Here&apos;s what is happening with your appointments today.
@@ -154,66 +159,73 @@ export default function CustomerDashboardPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[54rem] border-collapse text-left text-sm">
-            <thead>
-              <tr className="text-[11px] tracking-[0.12em] text-muted-foreground uppercase">
-                <th scope="col" className="px-5 py-3.5 font-medium">
-                  Booking
-                </th>
-                <th scope="col" className="px-5 py-3.5 font-medium">
-                  Service
-                </th>
-                <th scope="col" className="px-5 py-3.5 font-medium">
-                  Date &amp; time
-                </th>
-                <th scope="col" className="px-5 py-3.5 font-medium">
-                  Stylist
-                </th>
-                <th scope="col" className="px-5 py-3.5 font-medium">
-                  Status
-                </th>
-                <th scope="col" className="px-5 py-3.5 font-medium">
-                  Payment
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-right font-medium">
-                  Action
-                </th>
+          <DashboardTable
+            tableHeaders={[
+              "Service",
+              "Appointment date",
+              "Price",
+              "Status",
+              "Payment",
+            ]}
+            actionOptions={true}
+          >
+            {appointments.map((appointment) => (
+              <tr
+                key={appointment._id}
+                className="transition-colors hover:bg-rose-gold/5"
+              >
+                {/* Booking id (DashboardTable renders the "#id" column) */}
+                <td className="px-5 py-4 font-medium text-foreground">
+                  {appointment._id}
+                </td>
+
+                {/* Service + category */}
+                <td className="px-5 py-4">
+                  <p className="font-medium text-foreground">
+                    {appointment.serviceName}
+                  </p>
+                </td>
+
+                {/* Appointment date + time & location */}
+                <td className="px-5 py-4 whitespace-nowrap">
+                  <p className="text-foreground">
+                    {appointment.appointmentDate} · {appointment.timeSlot}
+                  </p>
+                </td>
+
+
+                {/* Price */}
+                <td className="px-5 py-4 font-heading text-base font-semibold whitespace-nowrap text-foreground">
+                  ${appointment.servicePrice}
+                </td>
+
+                {/* Status */}
+                <td className="px-5 py-4">
+                  <StatusBadge status={appointment.status} />
+                </td>
+
+                {/* Payment status */}
+                <td className="px-5 py-4">
+                  <StatusBadge status={appointment.paymentStatus} kind="payment" />
+                </td>
+
+                {/* Actions (Cancel / Pay Now / Rebook) */}
+                {data?.session ?
+
+                  <td className="px-5 py-4">
+                    <AppointmentActions
+                      id={appointment?._id}
+                      status={appointment.status}
+                      payment={appointment.paymentStatus}
+                      data={{ price: appointment.servicePrice, serviceId: appointment.serviceId, appointmentId: appointment._id }}
+                      onCancel={{ data: { status: "cancelled" }, action: updateBookingAppointment }}
+                      onSuccess={getData}
+                    />
+                  </td> : <></>
+                }
               </tr>
-            </thead>
-            <tbody className="divide-y divide-border/60">
-              {recentAppointments.map((row) => (
-                <tr
-                  key={row.id}
-                  className="transition-colors hover:bg-rose-gold/5"
-                >
-                  <td className="px-5 py-4 font-medium text-foreground">
-                    #{row.id}
-                  </td>
-                  <td className="px-5 py-4 text-foreground">{row.service}</td>
-                  <td className="px-5 py-4 text-muted-foreground">
-                    {row.datetime}
-                  </td>
-                  <td className="px-5 py-4 text-muted-foreground">
-                    {row.stylist}
-                  </td>
-                  <td className="px-5 py-4">
-                    <StatusBadge status={row.status} />
-                  </td>
-                  <td className="px-5 py-4">
-                    <StatusBadge status={row.payment} kind="payment" />
-                  </td>
-                  <td className="px-5 py-4 text-right">
-                    <Link
-                      href={`/dashboard/customer/appointments/${row.id}`}
-                      className="font-medium text-rose-gold outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
-                    >
-                      View
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}
+          </DashboardTable>
         </div>
       </section>
     </div>

@@ -1,7 +1,9 @@
 "use server"
 
 import { SalonServiceTypes } from "@/types/SalonServiceTypes"
+import { notFound } from "next/navigation"
 const url = process.env.NEXT_PUBLIC_LOCAL_DB_URL
+
 
 
 const PostService = async (data: SalonServiceTypes) => {
@@ -15,6 +17,7 @@ const PostService = async (data: SalonServiceTypes) => {
 
   return res.json()
 }
+
 const updateService = async (data:SalonServiceTypes,id:string|undefined) => {
   const res = await fetch(`${url}/services/${id}`, {
     method: "PATCH",
@@ -50,6 +53,8 @@ const getSpecificService= async (id:string|undefined) => {
   const res = await fetch(`${url}/services/${id}`,{cache:"no-store"})
   if(res.ok){
     return res.json()
+  }else{
+    notFound()
   }
 }
 

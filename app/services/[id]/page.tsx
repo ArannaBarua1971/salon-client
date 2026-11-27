@@ -2,7 +2,6 @@ import Link from "next/link"
 import {
   ArrowLeft,
   CalendarCheck,
-  Check,
   Clock,
   Scissors,
   Sparkles,
@@ -11,23 +10,19 @@ import {
 import { CommonButton } from "@/app/components/common/Button"
 import { getSpecificService } from "@/lib/applicatonApi/serviceApi"
 import ServiceBooking from "@/app/components/salonService/ServiceBooking"
+import { notFound } from "next/navigation"
 
 
-const included = [
-  { title: "Free consultation", note: "Shade & style matching before we start" },
-  { title: "Premium products", note: "Ammonia-free colour & bond protectors" },
-  { title: "Wash & finish", note: "Wash, blow-dry and styling included" },
-  { title: "Aftercare plan", note: "Personalised home-care routine" },
-]
 
 export default async function ServiceDetailsPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
-  const { id } = await params
-  const service=await getSpecificService(id)
 
+  const { id } = await params
+  const service = await getSpecificService(id)
+  
   return (
     <div
       data-service-id={id}
