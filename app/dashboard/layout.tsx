@@ -5,7 +5,7 @@ import { LayoutDashboard, CalendarCheck, User ,ShoppingCart,User2Icon} from "luc
 
 import { DashboardLayout } from "@/app/components/dashboard/DashboardLayout"
 import { useSession } from "@/lib/auth-client"
-import CommonLoader, { PageLoader } from "../components/common/Loader"
+import { PageLoader } from "../components/common/Loader"
 
 
 const NavItems = {

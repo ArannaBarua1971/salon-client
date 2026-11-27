@@ -81,6 +81,7 @@ export function ServiceBooking({
     if(res.ok){
       showToast("appointment book successfully completed")
       getTimeSlot()
+      setSelectedTime(null)
     }else{
       showToast(res.message,"w")
     }
