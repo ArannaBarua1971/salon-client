@@ -46,6 +46,8 @@ const getAllServices = async (data?:{}) => {
   const res = await fetch(`${url}/services?${query.toString()}`,{cache:"no-store"})
   if(res.ok){
     return res.json()
+  }else{
+    notFound()
   }
 }
 
